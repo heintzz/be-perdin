@@ -48,7 +48,6 @@ func (s service) Login(req LoginRequest) (resp LoginResponse, err error) {
 	}
 	user, err := s.repo.getUserByUsername(req.Username)
 	if err != nil {
-		// hide whether user exists
 		err = ErrInvalidCredentials
 		return
 	}

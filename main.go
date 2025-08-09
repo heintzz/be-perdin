@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"heintzz/be-perdin/app/auth"
+	"heintzz/be-perdin/app/cities"
 	"heintzz/be-perdin/app/users"
 	"heintzz/be-perdin/internal/config"
 	"heintzz/be-perdin/internal/db"
@@ -27,6 +28,7 @@ func main() {
 	// mount modules
 	auth.Run(app, database, cfg.JWTSecret)
 	users.Run(app, database, cfg.JWTSecret)
+	cities.Run(app, database)
 
 	port := cfg.Port
 	if port == "" {
