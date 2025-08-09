@@ -19,3 +19,13 @@ func (r *userRepository) createUser(user User) (newUser CreateUserResponse, err 
 	}
 	return
 }
+
+func (r *userRepository) updateUserRole(userID string, role string) (resp UpdateUserRoleResponse, err error) {
+	query := `UPDATE users SET role = $1 WHERE id = $2 RETURNING id, username, role`
+	row := r.db.QueryRow(query, role, userID)
+	err = row.Scan(&resp.ID, &resp.Username, &resp.Role)
+	if err != nil {
+		return
+	}
+	return
+}

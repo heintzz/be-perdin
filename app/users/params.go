@@ -15,10 +15,34 @@ type CreateUserResponse struct {
 
 func (req CreateUserRequest) Validate() error {
 	if req.Username == "" {
-		return fmt.Errorf("name field is required")
+		return fmt.Errorf("username field is required")
 	}
 	if req.Password == "" {
-		return fmt.Errorf("email field is required")
+		return fmt.Errorf("password field is required")
+	}
+	return nil
+}
+
+type UpdateUserRoleRequest struct {
+	UserID string `json:"-"`
+	Role   string `json:"role"`
+}
+
+type UpdateUserRoleResponse struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
+}
+
+func (req UpdateUserRoleRequest) Validate() error {
+	if req.UserID == "" {
+		return fmt.Errorf("userId param is required")
+	}
+	if req.Role == "" {
+		return fmt.Errorf("role field is required")
+	}
+	if req.Role != "PEGAWAI" && req.Role != "SDM" {
+		return fmt.Errorf("invalid role")
 	}
 	return nil
 }
