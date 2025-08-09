@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  username TEXT NOT NULL,
+  password TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('PEGAWAI','SDM')) DEFAULT 'PEGAWAI',
+  created_at TEXT NOT NULL
+);

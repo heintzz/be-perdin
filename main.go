@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"log"
 
+	"heintzz/be-perdin/app/users"
 	"heintzz/be-perdin/internal/config"
 	"heintzz/be-perdin/internal/db"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
@@ -17,4 +20,17 @@ func main() {
 	defer database.Close()
 
 	fmt.Print("connnected to database")
+
+	app := fiber.New()
+
+	// mount modules
+	users.Run(app, database)
+
+	port := cfg.Port
+	if port == "" {
+		port = "3000"
+	}
+	if err := app.Listen(":" + port); err != nil {
+		log.Fatalf("failed to start server: %v", err)
+	}
 }
