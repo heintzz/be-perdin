@@ -7,6 +7,7 @@ import (
 type repository interface {
 	createUser(user User) (CreateUserResponse, error)
 	updateUserRole(userID string, role string) (UpdateUserRoleResponse, error)
+	getUserByID(userID string) (GetUserProfileResponse, error)
 }
 
 type service struct {
@@ -47,4 +48,12 @@ func (s service) UpdateUserRole(req UpdateUserRoleRequest) (resp UpdateUserRoleR
 	}
 
 	return s.repo.updateUserRole(req.UserID, req.Role)
+}
+
+func (s service) GetUserProfile(req GetUserProfileRequest) (resp GetUserProfileResponse, err error) {
+	err = req.Validate()
+	if err != nil {
+		return
+	}
+	return s.repo.getUserByID(req.UserID)
 }

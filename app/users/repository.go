@@ -29,3 +29,13 @@ func (r *userRepository) updateUserRole(userID string, role string) (resp Update
 	}
 	return
 }
+
+func (r *userRepository) getUserByID(userID string) (resp GetUserProfileResponse, err error) {
+	query := `SELECT id, username, role, created_at FROM users WHERE id = $1`
+	row := r.db.QueryRow(query, userID)
+	err = row.Scan(&resp.ID, &resp.Username, &resp.Role, &resp.CreatedAt)
+	if err != nil {
+		return
+	}
+	return
+}

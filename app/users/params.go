@@ -46,3 +46,21 @@ func (req UpdateUserRoleRequest) Validate() error {
 	}
 	return nil
 }
+
+type GetUserProfileRequest struct {
+	UserID string `json:"-"`
+}
+
+type GetUserProfileResponse struct {
+	ID        string `json:"id"`
+	Username  string `json:"username"`
+	Role      string `json:"role"`
+	CreatedAt string `json:"createdAt"`
+}
+
+func (req GetUserProfileRequest) Validate() error {
+	if req.UserID == "" {
+		return fmt.Errorf("user id is required")
+	}
+	return nil
+}

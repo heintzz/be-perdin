@@ -14,5 +14,6 @@ func Run(app *fiber.App, db *sql.DB) {
 	api := app.Group("/api/v1/users")
 
 	api.Post("/", h.createUser)
-    api.Patch("/:id/role", h.updateUserRole)
+	api.Get("/:id", h.getUserProfile)
+	api.Patch("/:id/role", h.updateUserRole)
 }
