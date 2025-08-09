@@ -1,15 +1,14 @@
-package users
+package auth
 
 import (
 	"time"
 
-	jwt "github.com/golang-jwt/jwt/v5"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type repository interface {
-	updateUserRole(userID string, role string) (UpdateUserRoleResponse, error)
-	getUserByID(userID string) (GetUserProfileResponse, error)
+	registerUser(user User) (RegisterUserResponse, error)
 	getUserByUsername(username string) (User, error)
 }
 
@@ -18,28 +17,29 @@ type service struct {
 	jwtSecret string
 }
 
-func NewService(repo repository, jwtSecret string) service {
-	return service{
-		repo:      repo,
-		jwtSecret: jwtSecret,
-	}
+func newService(repo repository, jwtSecret string) service {
+	return service{repo, jwtSecret}
 }
 
-func (s service) UpdateUserRole(req UpdateUserRoleRequest) (resp UpdateUserRoleResponse, err error) {
+func (s service) CreateUser(req RegisterUserRequest) (resp RegisterUserResponse, err error) {
 	err = req.Validate()
 	if err != nil {
 		return
 	}
 
-	return s.repo.updateUserRole(req.UserID, req.Role)
-}
+	hashedPasswordBytes, hashErr := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if hashErr != nil {
+		err = hashErr
+		return
+	}
 
-func (s service) GetUserProfile(req GetUserProfileRequest) (resp GetUserProfileResponse, err error) {
-	err = req.Validate()
+	newUser := NewUser(req.Username, string(hashedPasswordBytes))
+	createdUser, err := s.repo.registerUser(newUser)
 	if err != nil {
 		return
 	}
-	return s.repo.getUserByID(req.UserID)
+
+	return createdUser, nil
 }
 
 func (s service) Login(req LoginRequest) (resp LoginResponse, err error) {
@@ -48,7 +48,6 @@ func (s service) Login(req LoginRequest) (resp LoginResponse, err error) {
 	}
 	user, err := s.repo.getUserByUsername(req.Username)
 	if err != nil {
-		// hide whether user exists
 		err = ErrInvalidCredentials
 		return
 	}

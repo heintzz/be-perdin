@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"heintzz/be-perdin/app/auth"
 	"heintzz/be-perdin/app/users"
 	"heintzz/be-perdin/internal/config"
 	"heintzz/be-perdin/internal/db"
@@ -24,7 +25,8 @@ func main() {
 	app := fiber.New()
 
 	// mount modules
-	users.Run(app, database)
+	auth.Run(app, database, cfg.JWTSecret)
+	users.Run(app, database, cfg.JWTSecret)
 
 	port := cfg.Port
 	if port == "" {
