@@ -41,8 +41,6 @@ func (s service) createCity(ctx context.Context, req createCityRequest) (createC
 		return createCityResponse{}, err
 	}
 
-	fmt.Println(created)
-
 	return created, err
 }
 
