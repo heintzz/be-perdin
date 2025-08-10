@@ -22,7 +22,7 @@ func newService(repo repository, jwtSecret string) service {
 }
 
 func (s service) CreateUser(req RegisterUserRequest) (resp RegisterUserResponse, err error) {
-	err = req.Validate()
+	err = req.validate()
 	if err != nil {
 		return
 	}
@@ -43,7 +43,7 @@ func (s service) CreateUser(req RegisterUserRequest) (resp RegisterUserResponse,
 }
 
 func (s service) Login(req LoginRequest) (resp LoginResponse, err error) {
-	if err = req.Validate(); err != nil {
+	if err = req.validate(); err != nil {
 		return
 	}
 	user, err := s.repo.getUserByUsername(req.Username)

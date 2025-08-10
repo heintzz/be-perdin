@@ -4,14 +4,16 @@ import (
 	"database/sql"
 
 	"github.com/gofiber/fiber/v2"
+
+	middleware "heintzz/be-perdin/app"
 )
 
-func Run(app *fiber.App, db *sql.DB) {
+func Run(app *fiber.App, db *sql.DB, jwtSecret string) {
 	repo := NewRepository(db)
 	svc := newService(repo)
 	h := newHandler(svc)
 
-	api := app.Group("/api/v1/cities")
+	api := app.Group("/api/v1/cities", middleware.AuthenticateJWT(jwtSecret))
 	api.Post("/", h.createCity)
 	api.Get("/", h.listCities)
 	api.Get("/:id", h.getCityByID)

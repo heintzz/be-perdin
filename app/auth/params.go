@@ -13,7 +13,7 @@ type RegisterUserResponse struct {
 	CreatedAt string `json:"createdAt"`
 }
 
-func (req RegisterUserRequest) Validate() error {
+func (req RegisterUserRequest) validate() error {
 	if req.Username == "" {
 		return fmt.Errorf("username field is required")
 	}
@@ -32,7 +32,7 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
-func (req LoginRequest) Validate() error {
+func (req LoginRequest) validate() error {
 	if req.Username == "" {
 		return fmt.Errorf("username field is required")
 	}
