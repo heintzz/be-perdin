@@ -9,7 +9,7 @@ import (
 
 type repository interface {
 	createTrip(t Trip) (Trip, error)
-	listTrips(q string, limit int, offset int, employeeIDFilter string) ([]Trip, error)
+	listTrips(q string, limit int, offset int, employeeIDFilter string) ([]getTripResponse, error)
 	getTripByID(id int64) (Trip, error)
 	updateTrip(id int64, t Trip) (Trip, error)
 	deleteTrip(id int64) error
@@ -27,7 +27,7 @@ func (s service) getTripByID(_ context.Context, id int64) (Trip, error) {
 	return s.repo.getTripByID(id)
 }
 
-func (s service) listTripsForRole(query listQuery, role string, userID string) ([]Trip, error) {
+func (s service) listTripsForRole(query listQuery, role string, userID string) ([]getTripResponse, error) {
 	// If role is PEGAWAI, constrain to own trips; if SDM, no filter
 	employeeFilter := ""
 	if role == "PEGAWAI" {

@@ -10,9 +10,9 @@ type Trip struct {
 	DestinationCityID int64    `json:"destinationCityId"`
 	DurationDays      int      `json:"durationDays"`
 	DistanceKm        float64  `json:"distanceKm"`
-	Allowance         *float64 `json:"allowance,omitempty"`
 	Status            string   `json:"status"`
+	CreatedAt         string   `json:"createdAt,omitempty"`
+	Allowance         *float64 `json:"allowance,omitempty"`
 	ApprovedBy        *string  `json:"approvedBy,omitempty"`
 	ApprovedAt        *string  `json:"approvedAt,omitempty"`
-	CreatedAt         string   `json:"createdAt,omitempty"`
 }

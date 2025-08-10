@@ -14,6 +14,12 @@ type City struct {
 	UpdatedAt string  `json:"updatedAt,omitempty"`
 }
 
+type CityOnTripResponse struct {
+	ID        int64  `json:"id"`
+	Name      string `json:"name"`
+	IsForeign bool   `json:"isForeign"`
+}
+
 func NewCity(
 	name string,
 	latitude float64,

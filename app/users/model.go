@@ -14,6 +14,10 @@ type User struct {
 	CreatedAt string `json:"created_at,omitempty"`
 }
 
+type UserOnTripResponse struct {
+	Username string `json:"username"`
+}
+
 func NewUser(username, password string) User {
 	currentTime := time.Now()
 	return User{

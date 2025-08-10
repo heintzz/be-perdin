@@ -2,6 +2,8 @@ package trips
 
 import (
 	"database/sql"
+	cities "heintzz/be-perdin/app/cities"
+	users "heintzz/be-perdin/app/users"
 )
 
 type tripRepository struct {
@@ -14,9 +16,21 @@ func NewRepository(db *sql.DB) repository {
 
 func (r *tripRepository) getTripByID(id int64) (Trip, error) {
 	const query = `
-        SELECT id, employee_id, purpose, depart_date, return_date,
-               origin_city_id, destination_city_id, duration_days,
-               distance_km, allowance, status, approved_by, approved_at, created_at
+        SELECT
+            id,
+            employee_id,
+            purpose,
+            depart_date,
+            return_date,
+            origin_city_id,
+            destination_city_id,
+            duration_days,
+            distance_km,
+            allowance,
+            status,
+            approved_by,
+            approved_at,
+            created_at
         FROM trips
         WHERE id = $1
     `
@@ -72,7 +86,6 @@ func (r *tripRepository) createTrip(t Trip) (Trip, error) {
 	var allowance sql.NullFloat64
 	var approvedBy sql.NullString
 	var approvedAt sql.NullString
-
 	var allowanceParam any
 	if t.Allowance != nil {
 		allowanceParam = *t.Allowance
@@ -124,7 +137,7 @@ func (r *tripRepository) createTrip(t Trip) (Trip, error) {
 	return created, nil
 }
 
-func (r *tripRepository) listTrips(q string, limit int, offset int, employeeIDFilter string) ([]Trip, error) {
+func (r *tripRepository) listTrips(q string, limit int, offset int, employeeIDFilter string) ([]getTripResponse, error) {
 	if limit <= 0 {
 		limit = 50
 	}
@@ -132,13 +145,25 @@ func (r *tripRepository) listTrips(q string, limit int, offset int, employeeIDFi
 		offset = 0
 	}
 	const query = `
-        SELECT id, employee_id, purpose, depart_date, return_date,
-               origin_city_id, destination_city_id, duration_days,
-               distance_km, allowance, status, approved_by, approved_at, created_at
-        FROM trips
-        WHERE ($1 = '' OR purpose ILIKE '%' || $1 || '%')
-          AND ($4 = '' OR employee_id = $4)
-        ORDER BY created_at DESC
+        SELECT
+            t.id,
+            t.purpose,
+            t.depart_date,
+            t.return_date,
+            t.duration_days,
+            t.distance_km,
+            t.allowance,
+            t.status,
+            u.username,
+            oc.id, oc.name, oc.is_foreign,
+            dc.id, dc.name, dc.is_foreign
+        FROM trips t
+        JOIN cities oc ON oc.id = t.origin_city_id
+        JOIN cities dc ON dc.id = t.destination_city_id
+        JOIN users u ON u.id = t.employee_id
+        WHERE ($1 = '' OR t.purpose ILIKE '%' || $1 || '%')
+          AND ($4 = '' OR t.employee_id = $4)
+        ORDER BY t.created_at DESC
         LIMIT $2 OFFSET $3
     `
 	rows, err := r.db.Query(query, q, limit, offset, employeeIDFilter)
@@ -147,41 +172,34 @@ func (r *tripRepository) listTrips(q string, limit int, offset int, employeeIDFi
 	}
 	defer rows.Close()
 
-	var result []Trip
+	var result []getTripResponse
 	for rows.Next() {
-		var t Trip
+		var t getTripResponse
 		var allowance sql.NullFloat64
-		var approvedBy sql.NullString
-		var approvedAt sql.NullString
+		var requester users.UserOnTripResponse
+		var origin cities.CityOnTripResponse
+		var destination cities.CityOnTripResponse
 		if err := rows.Scan(
 			&t.ID,
-			&t.EmployeeID,
 			&t.Purpose,
 			&t.DepartDate,
 			&t.ReturnDate,
-			&t.OriginCityID,
-			&t.DestinationCityID,
 			&t.DurationDays,
 			&t.DistanceKm,
 			&allowance,
 			&t.Status,
-			&approvedBy,
-			&approvedAt,
-			&t.CreatedAt,
+			&requester.Username,
+			&origin.ID, &origin.Name, &origin.IsForeign,
+			&destination.ID, &destination.Name, &destination.IsForeign,
 		); err != nil {
 			return nil, err
 		}
 		if allowance.Valid {
 			t.Allowance = &allowance.Float64
 		}
-		if approvedBy.Valid {
-			v := approvedBy.String
-			t.ApprovedBy = &v
-		}
-		if approvedAt.Valid {
-			v := approvedAt.String
-			t.ApprovedAt = &v
-		}
+		t.Employee = &requester
+		t.OriginCity = &origin
+		t.DestinationCity = &destination
 		result = append(result, t)
 	}
 	if err := rows.Err(); err != nil {

@@ -2,6 +2,8 @@ package trips
 
 import (
 	"fmt"
+	cities "heintzz/be-perdin/app/cities"
+	users "heintzz/be-perdin/app/users"
 	"strconv"
 	"time"
 
@@ -18,6 +20,20 @@ type createTripRequest struct {
 	DurationDays      int      `json:"durationDays"`
 	DistanceKm        float64  `json:"distanceKm"`
 	Allowance         *float64 `json:"allowance"`
+}
+
+type getTripResponse struct {
+	ID              int64                      `json:"id"`
+	Employee        *users.UserOnTripResponse  `json:"employee"`
+	Purpose         string                     `json:"purpose"`
+	DepartDate      string                     `json:"departDate"`
+	ReturnDate      string                     `json:"returnDate"`
+	OriginCity      *cities.CityOnTripResponse `json:"originCity,omitempty"`
+	DestinationCity *cities.CityOnTripResponse `json:"destinationCity,omitempty"`
+	DurationDays    int                        `json:"durationDays"`
+	DistanceKm      float64                    `json:"distanceKm"`
+	Allowance       *float64                   `json:"allowance,omitempty"`
+	Status          string                     `json:"status"`
 }
 
 func (req createTripRequest) validate() error {
